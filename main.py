@@ -36,6 +36,29 @@ def add_to_budget():
     else:
         messagebox.showerror("Error", "Please enter both category and amount.")
 
+def update_budget():
+    category = category_entry.get().lower()
+    amount_str = amount_entry.get()
+    try:
+        amount = float(amount_str)  # Convert amount to float
+    except ValueError:
+        messagebox.showerror("Error", "Please enter a valid amount.")
+        return
+    
+    if category and amount:
+        budget[category] = amount
+        update_budget_display()
+    else:
+        messagebox.showerror("Error", "Please enter both category and amount.")
+
+def delete_from_budget():
+    category = category_entry.get().lower()
+    if category in budget:
+        del budget[category]
+        update_budget_display()
+    else:
+        messagebox.showerror("Error", "Category not found in the budget.")
+
 def update_budget_display():
     budget_display.delete(1.0, tk.END)
     for category, amount in budget.items():
@@ -83,21 +106,27 @@ amount_entry.grid(row=2, column=1, padx=10, pady=5)
 add_button = tk.Button(app, text="Add to Budget", command=add_to_budget)
 add_button.grid(row=3, column=0, columnspan=2, padx=10, pady=5)
 
+update_button = tk.Button(app, text="Update Budget", command=update_budget)
+update_button.grid(row=4, column=0, columnspan=2, padx=10, pady=5)
+
+delete_button = tk.Button(app, text="Delete from Budget", command=delete_from_budget)
+delete_button.grid(row=5, column=0, columnspan=2, padx=10, pady=5)
+
 # Displaying the budget
 budget_display = tk.Text(app, height=10, width=30)
-budget_display.grid(row=4, column=0, columnspan=2, padx=10, pady=5)
+budget_display.grid(row=6, column=0, columnspan=2, padx=10, pady=5)
 
 # Button to save budget
 save_button = tk.Button(app, text="Save Budget", command=save_budget)
-save_button.grid(row=5, column=0, columnspan=2, padx=10, pady=5)
+save_button.grid(row=7, column=0, columnspan=2, padx=10, pady=5)
 
 # Label to display remaining budget
 remaining_label = tk.Label(app, text="")
-remaining_label.grid(row=6, column=0, columnspan=2, padx=10, pady=5)
+remaining_label.grid(row=8, column=0, columnspan=2, padx=10, pady=5)
 
 # Calculate remaining budget
 calculate_button = tk.Button(app, text="Calculate Remaining Budget", command=calculate_remaining)
-calculate_button.grid(row=7, column=0, columnspan=2, padx=10, pady=5)
+calculate_button.grid(row=9, column=0, columnspan=2, padx=10, pady=5)
 
 # Default budget categories and amounts (case-insensitive)
 budget = {}
