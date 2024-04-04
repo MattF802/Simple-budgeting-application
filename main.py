@@ -4,6 +4,8 @@ import openpyxl
 from openpyxl import load_workbook, Workbook
 import matplotlib.pyplot as plt
 from io import BytesIO
+import tempfile
+import os
 
 # Define the budget dictionary and Excel workbook
 budget = {}
@@ -12,6 +14,48 @@ wb = Workbook()
 # Initialize the main application window
 app = tk.Tk()
 app.title("Budgeting Application")
+
+def create_template_budget(filename):
+    # Define the structure of the template budget
+    categories = {
+        'Income': 0,
+        'Housing': 0,
+        'Utilities': 0,
+        'Food': 0,
+        'Transportation': 0,
+        'Healthcare': 0,
+        'Entertainment': 0,
+        'Savings': 0,
+        'Miscellaneous': 0
+    }
+
+    # Create a new workbook and add the categories to it
+    wb = Workbook()
+    ws = wb.active
+    ws.title = 'Budget'
+    for row, (category, amount) in enumerate(categories.items(), start=1):
+        ws.cell(row=row, column=1, value=category)
+        ws.cell(row=row, column=2, value=amount)
+
+    # Save the template budget file
+    wb.save(filename)
+
+def load_budget(filename):
+    if not os.path.isfile(filename):
+        print(f"Budget file '{filename}' not found. Creating a new template budget file...")
+        create_template_budget(filename)
+    try:
+        wb = load_workbook(filename)
+    except Exception as e:
+        print(f"Error loading workbook: {e}")
+        print("Creating a new template budget file...")
+        create_template_budget(filename)
+        wb = load_workbook(filename)
+    return wb
+
+# Usage example
+filename = 'budget.xlsx'
+wb = load_budget(filename)
 
 # Function to update budget display
 def update_budget_display():
@@ -113,6 +157,8 @@ def calculate_remaining():
     update_budget_display()
 
 
+import tempfile
+
 def generate_pie_chart():
     labels = budget.keys()
     sizes = budget.values()
@@ -120,22 +166,20 @@ def generate_pie_chart():
     plt.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=140)
     plt.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle
 
-    # Save the pie chart image to a BytesIO object
-    chart_image = BytesIO()
-    plt.savefig(chart_image, format='png')
-    chart_image.seek(0)
+    # Save the pie chart image to a temporary file
+    with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as temp_file:
+        plt.savefig(temp_file.name, format='png')
+        temp_file.close()
 
-    # Display the pie chart image in the application
-    pie_chart_img = tk.PhotoImage(data=chart_image.getvalue())
-    pie_chart_label.config(image=pie_chart_img)
-    pie_chart_label.image = pie_chart_img
+        # Add the image file to the Excel workbook
+        chart_sheet = wb.create_sheet("Pie Chart")
+        img = openpyxl.drawing.image.Image(temp_file.name)
+        chart_sheet.add_image(img, 'A1')
+        chart_sheet.sheet_properties.tabColor = "00FF00"  # Set sheet tab color
 
-    # Save the pie chart image to Excel
-    chart_sheet = wb.create_sheet("Pie Chart")
-    img = openpyxl.drawing.image.Image(chart_image)
-    chart_sheet.add_image(img, 'A1')
-    chart_sheet.sheet_properties.tabColor = "00FF00"  # Set sheet tab color
-    chart_image.close()
+    # Clean up the temporary file
+    os.unlink(temp_file.name)
+
 
 # Labels and Entries for user input
 salary_label = tk.Label(app, text="Enter your monthly salary:")
