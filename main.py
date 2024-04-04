@@ -22,7 +22,7 @@ def save_budget():
         messagebox.showerror("Error", "Could not save the budget. Please make sure the file is not open.")
 
 def add_to_budget():
-    category = category_entry.get()
+    category = category_entry.get().lower()
     amount = amount_entry.get()
     if category and amount:
         budget[category] = amount
@@ -79,8 +79,8 @@ remaining_label.grid(row=6, column=0, columnspan=2, padx=10, pady=5)
 calculate_button = tk.Button(app, text="Calculate Remaining Budget", command=calculate_remaining)
 calculate_button.grid(row=7, column=0, columnspan=2, padx=10, pady=5)
 
-# Default budget categories and amounts
-budget = {'Rent': 0, 'Food': 0, 'Utilities': 0, 'Transportation': 0}
+# Default budget categories and amounts (case-insensitive)
+budget = {'rent': 0, 'food': 0, 'utilities': 0, 'transportation': 0}
 
 # Run the application
 app.mainloop()
