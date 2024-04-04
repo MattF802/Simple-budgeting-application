@@ -1,10 +1,13 @@
-#Simple template made using chat gpt
 import tkinter as tk
 from tkinter import messagebox, simpledialog
+import openpyxl
 from openpyxl import load_workbook, Workbook
+import matplotlib.pyplot as plt
+from io import BytesIO
 
-# Define the budget dictionary
+# Define the budget dictionary and Excel workbook
 budget = {}
+wb = Workbook()
 
 # Initialize the main application window
 app = tk.Tk()
@@ -35,7 +38,6 @@ def load_budget():
 # Function to save budget data to Excel file
 def save_budget():
     filename = "budget.xlsx"
-    wb = Workbook()
     ws = wb.active
     ws.title = "Budget"
 
@@ -105,13 +107,41 @@ def calculate_remaining():
     total_expenses = sum(budget.values())
     remaining = salary - total_expenses
     remaining_label.config(text=f"Remaining budget: ${remaining}")
+    
+    # Update the budget with the remaining amount
+    budget["Remaining"] = remaining
+    update_budget_display()
+
+
+def generate_pie_chart():
+    labels = budget.keys()
+    sizes = budget.values()
+    plt.figure(figsize=(6, 6))
+    plt.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=140)
+    plt.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle
+
+    # Save the pie chart image to a BytesIO object
+    chart_image = BytesIO()
+    plt.savefig(chart_image, format='png')
+    chart_image.seek(0)
+
+    # Display the pie chart image in the application
+    pie_chart_img = tk.PhotoImage(data=chart_image.getvalue())
+    pie_chart_label.config(image=pie_chart_img)
+    pie_chart_label.image = pie_chart_img
+
+    # Save the pie chart image to Excel
+    chart_sheet = wb.create_sheet("Pie Chart")
+    img = openpyxl.drawing.image.Image(chart_image)
+    chart_sheet.add_image(img, 'A1')
+    chart_sheet.sheet_properties.tabColor = "00FF00"  # Set sheet tab color
+    chart_image.close()
 
 # Labels and Entries for user input
 salary_label = tk.Label(app, text="Enter your monthly salary:")
 salary_label.grid(row=0, column=0, padx=10, pady=5)
 salary_entry = tk.Entry(app)
 salary_entry.grid(row=0, column=1, padx=10, pady=5)
-salary_entry.focus()  # Set focus to the salary entry widget
 
 category_label = tk.Label(app, text="Category:")
 category_label.grid(row=1, column=0, padx=10, pady=5)
@@ -149,6 +179,14 @@ delete_button.grid(row=8, column=0, columnspan=2, padx=10, pady=5)
 # Button to update category
 update_button = tk.Button(app, text="Update Category", command=update_category)
 update_button.grid(row=9, column=0, columnspan=2, padx=10, pady=5)
+
+# Button to generate pie chart
+generate_chart_button = tk.Button(app, text="Generate Pie Chart", command=generate_pie_chart)
+generate_chart_button.grid(row=0, column=2, padx=10, pady=5)
+
+# Label to display pie chart
+pie_chart_label = tk.Label(app)
+pie_chart_label.grid(row=1, column=2, rowspan=9, padx=10, pady=5)
 
 # Load budget data from Excel file
 load_budget()
