@@ -1,7 +1,7 @@
 #Simple template made using chat gpt
 import tkinter as tk
 from tkinter import messagebox
-from openpyxl import Workbook
+from openpyxl import load_workbook, Workbook
 
 def save_budget():
     filename = "budget.xlsx"
@@ -47,6 +47,19 @@ def calculate_remaining():
     remaining = salary - total_expenses
     remaining_label.config(text=f"Remaining budget: ${remaining}")
 
+# Load data from the Excel file and populate the budget dictionary
+def load_budget():
+    filename = "budget.xlsx"
+    try:
+        wb = load_workbook(filename)
+        ws = wb.active
+        for row in ws.iter_rows(min_row=2, values_only=True):
+            category, amount = row
+            budget[category.lower()] = amount
+        update_budget_display()
+    except FileNotFoundError:
+        messagebox.showerror("Error", "Budget file not found.")
+
 # Initialize the main application window
 app = tk.Tk()
 app.title("Budgeting Application")
@@ -87,7 +100,10 @@ calculate_button = tk.Button(app, text="Calculate Remaining Budget", command=cal
 calculate_button.grid(row=7, column=0, columnspan=2, padx=10, pady=5)
 
 # Default budget categories and amounts (case-insensitive)
-budget = {'rent': 0, 'food': 0, 'utilities': 0, 'transportation': 0}
+budget = {}
+
+# Load budget data when the application starts
+load_budget()
 
 # Run the application
 app.mainloop()
