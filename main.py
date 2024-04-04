@@ -43,6 +43,7 @@ def update_budget_display():
 
 def calculate_remaining():
     total_expenses = sum(budget.values())
+    salary = float(salary_entry.get())  # Get the salary input
     remaining = salary - total_expenses
     remaining_label.config(text=f"Remaining budget: ${remaining}")
 
