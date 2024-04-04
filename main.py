@@ -3,8 +3,22 @@ import tkinter as tk
 from tkinter import messagebox, simpledialog
 from openpyxl import load_workbook, Workbook
 
+# Define the budget dictionary
+budget = {}
+
+# Initialize the main application window
+app = tk.Tk()
+app.title("Budgeting Application")
+
+# Function to update budget display
+def update_budget_display():
+    budget_display.delete(1.0, tk.END)
+    for category, amount in budget.items():
+        budget_display.insert(tk.END, f"{category}: ${amount}\n")
+
 # Function to load budget data from Excel file
 def load_budget():
+    global budget_display
     filename = "budget.xlsx"
     try:
         wb = load_workbook(filename)
@@ -76,29 +90,28 @@ def update_category():
         else:
             messagebox.showerror("Error", f"Category '{old_category}' not found.")
 
-def update_budget_display():
-    budget_display.delete(1.0, tk.END)
-    for category, amount in budget.items():
-        budget_display.insert(tk.END, f"{category}: ${amount}\n")
-
 def calculate_remaining():
+    salary_str = salary_entry.get()
+    if salary_str:
+        try:
+            salary = float(salary_str)  # Get the salary input
+        except ValueError:
+            messagebox.showerror("Error", "Please enter a valid salary.")
+            return
+    else:
+        messagebox.showerror("Error", "Please enter your monthly salary.")
+        return
+
     total_expenses = sum(budget.values())
-    salary = float(salary_entry.get())  # Get the salary input
     remaining = salary - total_expenses
     remaining_label.config(text=f"Remaining budget: ${remaining}")
-
-# Initialize the main application window
-app = tk.Tk()
-app.title("Budgeting Application")
-
-# Load budget data from Excel file
-load_budget()
 
 # Labels and Entries for user input
 salary_label = tk.Label(app, text="Enter your monthly salary:")
 salary_label.grid(row=0, column=0, padx=10, pady=5)
 salary_entry = tk.Entry(app)
 salary_entry.grid(row=0, column=1, padx=10, pady=5)
+salary_entry.focus()  # Set focus to the salary entry widget
 
 category_label = tk.Label(app, text="Category:")
 category_label.grid(row=1, column=0, padx=10, pady=5)
@@ -136,6 +149,9 @@ delete_button.grid(row=8, column=0, columnspan=2, padx=10, pady=5)
 # Button to update category
 update_button = tk.Button(app, text="Update Category", command=update_category)
 update_button.grid(row=9, column=0, columnspan=2, padx=10, pady=5)
+
+# Load budget data from Excel file
+load_budget()
 
 # Run the application
 app.mainloop()
