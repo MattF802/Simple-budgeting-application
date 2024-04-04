@@ -23,7 +23,13 @@ def save_budget():
 
 def add_to_budget():
     category = category_entry.get().lower()
-    amount = amount_entry.get()
+    amount_str = amount_entry.get()
+    try:
+        amount = float(amount_str)  # Convert amount to float
+    except ValueError:
+        messagebox.showerror("Error", "Please enter a valid amount.")
+        return
+    
     if category and amount:
         budget[category] = amount
         update_budget_display()
