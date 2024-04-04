@@ -1,3 +1,4 @@
+#Simple template made using chat gpt
 import tkinter as tk
 from tkinter import messagebox, simpledialog
 import openpyxl
@@ -7,9 +8,8 @@ from io import BytesIO
 import tempfile
 import os
 
-# Define the budget dictionary and Excel workbook
+# Define the budget dictionary
 budget = {}
-wb = Workbook()
 
 # Initialize the main application window
 app = tk.Tk()
@@ -82,6 +82,7 @@ def load_budget():
 # Function to save budget data to Excel file
 def save_budget():
     filename = "budget.xlsx"
+    wb = Workbook()
     ws = wb.active
     ws.title = "Budget"
 
@@ -186,6 +187,7 @@ salary_label = tk.Label(app, text="Enter your monthly salary:")
 salary_label.grid(row=0, column=0, padx=10, pady=5)
 salary_entry = tk.Entry(app)
 salary_entry.grid(row=0, column=1, padx=10, pady=5)
+salary_entry.focus()  # Set focus to the salary entry widget
 
 category_label = tk.Label(app, text="Category:")
 category_label.grid(row=1, column=0, padx=10, pady=5)
@@ -223,14 +225,6 @@ delete_button.grid(row=8, column=0, columnspan=2, padx=10, pady=5)
 # Button to update category
 update_button = tk.Button(app, text="Update Category", command=update_category)
 update_button.grid(row=9, column=0, columnspan=2, padx=10, pady=5)
-
-# Button to generate pie chart
-generate_chart_button = tk.Button(app, text="Generate Pie Chart", command=generate_pie_chart)
-generate_chart_button.grid(row=0, column=2, padx=10, pady=5)
-
-# Label to display pie chart
-pie_chart_label = tk.Label(app)
-pie_chart_label.grid(row=1, column=2, rowspan=9, padx=10, pady=5)
 
 # Load budget data from Excel file
 load_budget()
