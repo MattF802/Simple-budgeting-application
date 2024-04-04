@@ -35,34 +35,52 @@ def update_budget_display():
     for category, amount in budget.items():
         budget_display.insert(tk.END, f"{category}: ${amount}\n")
 
+def calculate_remaining():
+    total_expenses = sum(budget.values())
+    remaining = salary - total_expenses
+    remaining_label.config(text=f"Remaining budget: ${remaining}")
+
 # Initialize the main application window
 app = tk.Tk()
 app.title("Budgeting Application")
 
-# Budget data
-budget = {}
-
 # Labels and Entries for user input
+salary_label = tk.Label(app, text="Enter your monthly salary:")
+salary_label.grid(row=0, column=0, padx=10, pady=5)
+salary_entry = tk.Entry(app)
+salary_entry.grid(row=0, column=1, padx=10, pady=5)
+
 category_label = tk.Label(app, text="Category:")
-category_label.grid(row=0, column=0, padx=10, pady=5)
+category_label.grid(row=1, column=0, padx=10, pady=5)
 category_entry = tk.Entry(app)
-category_entry.grid(row=0, column=1, padx=10, pady=5)
+category_entry.grid(row=1, column=1, padx=10, pady=5)
 
 amount_label = tk.Label(app, text="Amount:")
-amount_label.grid(row=1, column=0, padx=10, pady=5)
+amount_label.grid(row=2, column=0, padx=10, pady=5)
 amount_entry = tk.Entry(app)
-amount_entry.grid(row=1, column=1, padx=10, pady=5)
+amount_entry.grid(row=2, column=1, padx=10, pady=5)
 
 add_button = tk.Button(app, text="Add to Budget", command=add_to_budget)
-add_button.grid(row=2, column=0, columnspan=2, padx=10, pady=5)
+add_button.grid(row=3, column=0, columnspan=2, padx=10, pady=5)
 
 # Displaying the budget
 budget_display = tk.Text(app, height=10, width=30)
-budget_display.grid(row=3, column=0, columnspan=2, padx=10, pady=5)
+budget_display.grid(row=4, column=0, columnspan=2, padx=10, pady=5)
 
 # Button to save budget
 save_button = tk.Button(app, text="Save Budget", command=save_budget)
-save_button.grid(row=4, column=0, columnspan=2, padx=10, pady=5)
+save_button.grid(row=5, column=0, columnspan=2, padx=10, pady=5)
+
+# Label to display remaining budget
+remaining_label = tk.Label(app, text="")
+remaining_label.grid(row=6, column=0, columnspan=2, padx=10, pady=5)
+
+# Calculate remaining budget
+calculate_button = tk.Button(app, text="Calculate Remaining Budget", command=calculate_remaining)
+calculate_button.grid(row=7, column=0, columnspan=2, padx=10, pady=5)
+
+# Default budget categories and amounts
+budget = {'Rent': 0, 'Food': 0, 'Utilities': 0, 'Transportation': 0}
 
 # Run the application
 app.mainloop()
