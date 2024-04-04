@@ -1,8 +1,24 @@
 #Simple template made using chat gpt
 import tkinter as tk
-from tkinter import messagebox
-from openpyxl import Workbook
+from tkinter import messagebox, simpledialog
+from openpyxl import load_workbook, Workbook
 
+# Function to load budget data from Excel file
+def load_budget():
+    filename = "budget.xlsx"
+    try:
+        wb = load_workbook(filename)
+        ws = wb.active
+        budget.clear()
+        for row in ws.iter_rows(min_row=2, values_only=True):
+            if row[0] and row[1]:
+                budget[row[0].lower()] = row[1]
+        update_budget_display()
+        messagebox.showinfo("Success", "Budget loaded from budget.xlsx")
+    except FileNotFoundError:
+        messagebox.showerror("Error", "Budget file not found.")
+
+# Function to save budget data to Excel file
 def save_budget():
     filename = "budget.xlsx"
     wb = Workbook()
@@ -33,8 +49,32 @@ def add_to_budget():
     if category and amount:
         budget[category] = amount
         update_budget_display()
+        category_entry.delete(0, tk.END)
+        amount_entry.delete(0, tk.END)
     else:
         messagebox.showerror("Error", "Please enter both category and amount.")
+
+def delete_category():
+    category = simpledialog.askstring("Delete Category", "Enter category to delete:")
+    if category:
+        category = category.lower()
+        if category in budget:
+            del budget[category]
+            update_budget_display()
+        else:
+            messagebox.showerror("Error", f"Category '{category}' not found.")
+
+def update_category():
+    old_category = simpledialog.askstring("Update Category", "Enter category to update:")
+    if old_category:
+        old_category = old_category.lower()
+        if old_category in budget:
+            new_amount = simpledialog.askfloat("Update Category", "Enter new amount:")
+            if new_amount is not None:
+                budget[old_category] = new_amount
+                update_budget_display()
+        else:
+            messagebox.showerror("Error", f"Category '{old_category}' not found.")
 
 def update_budget_display():
     budget_display.delete(1.0, tk.END)
@@ -50,6 +90,9 @@ def calculate_remaining():
 # Initialize the main application window
 app = tk.Tk()
 app.title("Budgeting Application")
+
+# Load budget data from Excel file
+load_budget()
 
 # Labels and Entries for user input
 salary_label = tk.Label(app, text="Enter your monthly salary:")
@@ -86,8 +129,13 @@ remaining_label.grid(row=6, column=0, columnspan=2, padx=10, pady=5)
 calculate_button = tk.Button(app, text="Calculate Remaining Budget", command=calculate_remaining)
 calculate_button.grid(row=7, column=0, columnspan=2, padx=10, pady=5)
 
-# Default budget categories and amounts (case-insensitive)
-budget = {'rent': 0, 'food': 0, 'utilities': 0, 'transportation': 0}
+# Button to delete category
+delete_button = tk.Button(app, text="Delete Category", command=delete_category)
+delete_button.grid(row=8, column=0, columnspan=2, padx=10, pady=5)
+
+# Button to update category
+update_button = tk.Button(app, text="Update Category", command=update_category)
+update_button.grid(row=9, column=0, columnspan=2, padx=10, pady=5)
 
 # Run the application
 app.mainloop()
